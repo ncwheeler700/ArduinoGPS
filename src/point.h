@@ -17,7 +17,7 @@ class Point {
 	void setLong(double newLong) {if (_long != newLong) _long = newLong;}
 
 	private:
-	double _lat,_long;
 	char* _name;
+	double _lat,_long;
 };
 #endif
