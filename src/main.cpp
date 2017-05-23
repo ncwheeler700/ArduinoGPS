@@ -28,15 +28,21 @@ const PROGMEM byte point [18] = {
 
 void drawSpeed(double speed) {
   String speedStr = String(speed);
-  for (int k=0;k<3;k++) {
-    if (speedStr[k+!!k] == oldSpeedStr[k+!!k])
+  int xPtr = 0;
+  for (int k=0;k<4;k++) {
+    if (speedStr[k] == oldSpeedStr[k])
       continue;
-    const byte* temp = speedNums[speedStr[k+!!k] - '0'];
-    lcd.setXY(6-((k/2)*3)+80*k, 0);
+    if (speedStr[k] == '.') {
+      xPtr += 28;
+      lcd.setCursor(xPtr-20, 18);
+      lcd.draw(point,9,16);
+      continue;
+    }
+    const byte* temp = speedNums[speedStr[k] - '0'];
+    lcd.setXY(xPtr, 0);
+    xPtr += 80;
     lcd.draw(temp,70,168);
   }
-  lcd.setCursor(78, 18);
-  lcd.draw(point,9,16);
   oldSpeedStr = speedStr;
 }
 
@@ -59,6 +65,7 @@ void modeClick() {
   lcd.clear();
   lcd.println("Mode Clicked");
   oldSpeedStr = "    ";
+  drawUnits();
 }
 
 void setClick() {
@@ -91,33 +98,18 @@ void setup() {
   lcd.setColor(255,255,255);
   lcd.setCursor(221,21);
   lcd.draw(knots,84,56);
+  drawSpeed(12.5);
 }
 
 void loop() {
   modeButton.tick();
   setButton.tick();
-  // char* str = "Hello World";
-  // File outFile = SD.open("output.txt",FILE_WRITE);
-  // int newTime = millis();
-  // if (outFile) {
-  //   if (abs(newTime-oldTime) > interval) {
-  //     outFile.println(str);
-  //     //Serial.println(gps.location.rawLat().deg);
-  //     if (test == 10.0)
-  //       test = 0;
-  //     drawSpeed(test);
-  //     test += .01;
-  //     oldTime = newTime;
-  //   }
-  //   outFile.close();
-  // } else {
-  //   Serial.println("Could not write file");
-  //   delay(500);
-  // }
+
   while (Serial3.available() > 0) {
     char tmp = Serial3.read();
     gps.encode(tmp);
   }
+
   if (gps.location.isUpdated()) {
     Serial.print(F("LOCATION   Fix Age="));
     Serial.print(gps.location.age());
